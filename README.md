@@ -14,4 +14,4 @@ Supports multiple vehicles
 3. Open the script file with a text editor and enter your tesla.com login information.
 
 ### Note for multiple vehicles
-When running the plugin for the first time, your vehicle will show up in the menu named as the last six of your VIN number.  To give your vehicle a human-readable name, edit the VEHICLES array in the script file to match you VIN and chosen name.
+When running the plugin for the first time, your vehicle will show up in the menu named as the last six of your VIN number.  To give your vehicle a human-readable name, edit the VEHICLES object in the script file to match you VIN and chosen name.
