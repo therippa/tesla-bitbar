@@ -196,27 +196,33 @@ def main():
     print ('|image=iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA/xpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ1dWlkOjI3MzY3NDg0MTg2QkRGMTE5NjZBQjM5RDc2MkZFOTlGIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkI2QzU0RTM0OURFMDExRTdBNEU0QTExMzAxRjlCQkE1IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkI2QzU0RTMzOURFMDExRTdBNEU0QTExMzAxRjlCQkE1IiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIElsbHVzdHJhdG9yIENDIDIwMTUgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo2MWU4Yzc5OS1kOTYyLTRjYmUtYWI0Mi1jYWZiOWY5NjFjZWUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NjFlOGM3OTktZDk2Mi00Y2JlLWFiNDItY2FmYjlmOTYxY2VlIi8+IDxkYzp0aXRsZT4gPHJkZjpBbHQ+IDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+dGVzbGFfVF9CVzwvcmRmOmxpPiA8L3JkZjpBbHQ+IDwvZGM6dGl0bGU+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+ux4+7QAAALlJREFUeNpi/P//PwMtABMDjcDQM5gFmyAjI2MAkLIHYgMgdsCh9wAQXwDig8B42oAhC4o8ZAwE74H4PpQ+D6XXA7EAFK9HkwOrxTAHi8ENUA3/0fB6KEYXB6ltIMZgkKv6oS4xgIqhGAYVM4CqmQ/SQ9BgbBjqbZjB54nRQ2yqeICDTXFyu4iDTbHBB3CwKTaY5KBgJLYQAmaa/9B0z0h2ziMiOKhq8AVaGfxwULiYcbQGobnBAAEGADCCwy7PWQ+qAAAAAElFTkSuQmCC')
     print ('---')
 
-    # loop through vehicles, print menu with relevant info
+    # only do submenu if multiple vehicles
+    prefix = ''
+    if len(c.vehicles) > 1:
+        prefix = '--'
+
+    # loop through vehicles, print menu with relevant info       
     for i, vehicle in enumerate(c.vehicles):
-        print get_name(vehicle['display_name'])
+        if prefix:
+            print get_name(vehicle['display_name'])
         charge_state = vehicle.data_request('charge_state')
         climate_state = vehicle.data_request('climate_state')
-        print ('--Battery Level: %s%%| color=black' % str(charge_state['battery_level']))
-        print ('--Charging State: %s| color=black' % charge_state['charging_state'])
-        print ('-----')
+        print ('%sBattery Level: %s%%| color=black' % (prefix, str(charge_state['battery_level'])))
+        print ('%sCharging State: %s| color=black' % (prefix, charge_state['charging_state']))
+        print ('%s---' % prefix)
         try:
-            print ('--Inside Temp: %.1f°| color=black' % convert_temp(climate_state['inside_temp']))
+            print ('%sInside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['inside_temp'])))
         except:
-            print ('--Inside Temp: Unavailable')
+            print ('%sInside Temp: Unavailable' % prefix)
         try:
-            print ('--Outside Temp: %.1f°| color=black' % convert_temp(climate_state['outside_temp']))
+            print ('%sOutside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['outside_temp'])))
         except:
-            print ('--Outside Temp: Unavailable')
+            print ('%sOutside Temp: Unavailable' % prefix)
 
         if climate_state['is_climate_on']:
-            print ('--Stop HVAC | refresh=true terminal=false bash=%s param1=%s param2=auto_conditioning_stop' % (sys.argv[0], str(i)))
+            print ('%sStop HVAC | refresh=true terminal=false bash=%s param1=%s param2=auto_conditioning_stop' % (prefix, sys.argv[0], str(i)))
         else:
-            print ('--Start HVAC | refresh=true terminal=false bash=%s param1=%s param2=auto_conditioning_start' % (sys.argv[0], str(i)))
+            print ('%sStart HVAC | refresh=true terminal=false bash=%s param1=%s param2=auto_conditioning_start' % (prefix, sys.argv[0], str(i)))
 
 
 if __name__ == '__main__':
