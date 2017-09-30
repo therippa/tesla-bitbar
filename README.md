@@ -5,6 +5,7 @@ A simple plugin that lets you view the battery/charging status and control the H
 ![](https://i.imgur.com/Vj5o80V.png)
 
 Supports multiple vehicles
+
 ![](https://i.imgur.com/XfkzAra.png)
 
 ## Instructions
