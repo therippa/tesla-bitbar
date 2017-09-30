@@ -2,7 +2,10 @@
 
 A simple plugin that lets you view the battery/charging status and control the HVAC from your OSX menubar.
 
-![](https://i.imgur.com/XbwiemY.png)
+![](https://i.imgur.com/Vj5o80V.png)
+
+Supports multiple vehicles
+![](https://i.imgur.com/XfkzAra.png)
 
 ## Instructions
 1. Install the latest version of [BitBar](https://github.com/matryer/bitbar/releases/latest)
