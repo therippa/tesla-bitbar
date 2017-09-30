@@ -9,4 +9,4 @@ A simple plugin that lets you view the battery/charging status and control the H
 2. Copy [tesla.30m.py](tesla.30m.py) to your BitBar plugins folder.
 3. Open the script file with a text editor and enter your tesla.com login information.
 
-When running the plugin for the first time, your vehicle will show up in the menu named as the last six of your VIN number.  To give your vehicle a human-readable name, edit the VEHICLES array in the script file to match you VIN and chosen name.
+When running the plugin for the first time, your vehicle will show up in the menu named as the last six of your VIN number.  To give your vehicle a human-readable name, edit the VEHICLES object in the script file to match you VIN and chosen name.
