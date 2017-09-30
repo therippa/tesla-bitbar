@@ -34,7 +34,6 @@ TEMP_UNIT='F' # 'F' or whatever else, it'll end up 'C'
 VEHICLES = { 
     # map vehicle ID numbers to real names
     #'012345': 'Example Vehicle Name',
-    '068927': 'Model X',
 }
 
 # ----------------------------------
