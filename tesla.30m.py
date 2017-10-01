@@ -292,13 +292,33 @@ def main():
 
         if vehicle['state'] != "online" and vehicle['state'] != "driving":
             print ('%sState: %s| color=black' %  (prefix, vehicle['state']))
-            print ('%sWakeup | refresh=true terminal=false bash="%s" param1=%s param2=wakeup' % (prefix, sys.argv[0], str(i)))
+            print ('%sWakeup | refresh=true terminal=false bash="%s" param1=%s param2=wake_up' % (prefix, sys.argv[0], str(i)))
             print ('%sStart HVAC | refresh=true terminal=false bash="%s" param1=%s param2=auto_conditioning_start' % (prefix, sys.argv[0], str(i)))
         else:
             charge_state = vehicle.data_request('charge_state')
             climate_state = vehicle.data_request('climate_state')
             print ('%sBattery Level: %s%%| color=black' % (prefix, str(charge_state['battery_level'])))
-            print ('%sCharging State: %s| color=black' % (prefix, charge_state['charging_state']))
+            
+            # The default charge state text
+            pretty_charge_state = charge_state['charging_state']
+
+            if charge_state['charging_state'] == "Charging":
+                # Calculate the wattage ourself for more signifiant digits
+                v = charge_state['charger_voltage']
+                a = charge_state['charger_actual_current']
+                if v and a:
+                    rate = float(v * a) / 1000.0
+                else:
+                    rate = 0
+                added = charge_state['charge_energy_added']
+                pretty_charge_state = "%0.2f kWh @ %0.2f kW" % (added, rate)
+            elif charge_state['charge_port_latch'] != "Engaged":
+                pretty_charge_state = "Unplugged"
+            else:
+                if charge_state['scheduled_charging_pending']:
+                    pretty_charge_state = "Scheduled"
+
+            print ('%sCharging: %s| color=black' % (prefix, pretty_charge_state))
             print ('%s---' % prefix)
             try:
                 print ('%sInside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['inside_temp'])))
