@@ -25,10 +25,12 @@ import sys
 import datetime
 import calendar
 import base64
+import keyring
 
 # enter your tesla.com credentials below
 USERNAME='email@gmail.com'
-PASSWORD=''
+PASSWORD=keyring.get_password('tesla-bitbar', USERNAME)
+
 TEMP_UNIT='F' # 'F' or whatever else, it'll end up 'C'
 
 VEHICLES = { 
