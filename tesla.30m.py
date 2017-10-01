@@ -31,6 +31,8 @@ import keyring
 import time
 from pprint import pprint
 
+USE_EMOJI=True
+
 TEMP_UNIT='F' # 'F' or whatever else, it'll end up 'C'
 
 VEHICLES = { 
@@ -285,6 +287,12 @@ def main():
     if len(vehicles) > 1:
         prefix = '--'
 
+    battery_str = "Battery:"
+    charging_str = "Charging:"
+    if USE_EMOJI:
+        battery_str = ":battery:"
+        charging_str = ":electric_plug:"
+
     # loop through vehicles, print menu with relevant info       
     for i, vehicle in enumerate(vehicles):
         if prefix:
@@ -297,7 +305,7 @@ def main():
         else:
             charge_state = vehicle.data_request('charge_state')
             climate_state = vehicle.data_request('climate_state')
-            print ('%sBattery Level: %s%%| color=black' % (prefix, str(charge_state['battery_level'])))
+            print ('%s%s %s%%| color=black' % (prefix, battery_str, str(charge_state['battery_level'])))
             
             # The default charge state text
             pretty_charge_state = charge_state['charging_state']
@@ -311,14 +319,22 @@ def main():
                 else:
                     rate = 0
                 added = charge_state['charge_energy_added']
-                pretty_charge_state = "%0.2f kWh @ %0.2f kW" % (added, rate)
+                pretty_charge_state = "+%0.2f kWh @ %0.2f kW" % (added, rate)
+                try:
+                    ttf = float(charge_state['time_to_full_charge'])
+                    if ttf > 1.4:
+                        pretty_charge_state += ", %0.1f hours remaining" % (ttf)
+                    else:
+                        pretty_charge_state += ", %d min remaining" % (ttf * 60.0)
+                except Exception:
+                    pass
             elif charge_state['charge_port_latch'] != "Engaged":
                 pretty_charge_state = "Unplugged"
             else:
                 if charge_state['scheduled_charging_pending']:
                     pretty_charge_state = "Scheduled"
 
-            print ('%sCharging: %s| color=black' % (prefix, pretty_charge_state))
+            print ('%s%s %s| color=black' % (prefix, charging_str, pretty_charge_state))
             print ('%s---' % prefix)
             try:
                 print ('%sInside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['inside_temp'])))
