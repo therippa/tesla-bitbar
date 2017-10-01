@@ -214,7 +214,6 @@ def main():
     for i, vehicle in enumerate(c.vehicles):
         if prefix:
             print get_name(vehicle['display_name'])
-        v.wake_up()
         charge_state = vehicle.data_request('charge_state')
         climate_state = vehicle.data_request('climate_state')
         print ('%sBattery Level: %s%%| color=black' % (prefix, str(charge_state['battery_level'])))
