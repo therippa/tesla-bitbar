@@ -195,6 +195,7 @@ def main():
     # see if args are passed, if so, pass commands and bail
     if len(sys.argv) > 1:
         v = c.vehicles[int(sys.argv[1])]
+        v.wake_up()
         v.command(sys.argv[2])
         return
 
