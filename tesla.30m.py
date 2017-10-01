@@ -16,20 +16,20 @@ try: # Python 3
     from urllib.parse import urlencode
     from urllib.request import Request, urlopen, build_opener
     from urllib.request import ProxyHandler, HTTPBasicAuthHandler, HTTPHandler
+    from urllib.request import HTTPError # <- is this right???
 except: # Python 2
     from urllib import urlencode
     from urllib2 import Request, urlopen, build_opener
     from urllib2 import ProxyHandler, HTTPBasicAuthHandler, HTTPHandler
+    from urllib2 import HTTPError
 import json
-import sys
+import sys, os
 import datetime
 import calendar
 import base64
 import keyring
-
-# enter your tesla.com credentials below
-USERNAME='email@gmail.com'
-PASSWORD=keyring.get_password('tesla-bitbar', USERNAME)
+import time
+from pprint import pprint
 
 TEMP_UNIT='F' # 'F' or whatever else, it'll end up 'C'
 
@@ -79,6 +79,8 @@ class Connection(object):
         current_client = tesla_client['v1']
         self.baseurl = current_client['baseurl']
         self.api = current_client['api']
+        self.access_token = None
+        self.expiration = 0
         if access_token:
             self.__sethead(access_token)
         else:
@@ -88,16 +90,38 @@ class Connection(object):
                 "client_secret" : current_client['secret'],
                 "email" : email,
                 "password" : password }
-            self.expiration = 0 # force refresh
-        self.vehicles = [Vehicle(v, self) for v in self.get('vehicles')['response']]
-    
+
+        # This is now a vechicles() function
+        #self.vehicles = [Vehicle(v, self) for v in self.get('vehicles')['response']]
+   
+    def vehicles(self):
+        return [Vehicle(v, self) for v in self.get('vehicles')['response']]
+
+    def get_token(self):
+        if self.access_token and self.expiration < time.time():
+            return self.access_token
+
+        try:
+            auth = self.__open("/oauth/token", data=self.oauth)
+        except HTTPError as e:
+            # Typically, this means non 200 response code
+            return None
+
+        if 'access_token' in auth and auth['access_token']:
+            self.access_token = auth['access_token']
+            self.expiration = int(time.time()) + auth['expires_in'] - 86400
+            return self.access_token
+
+        return None
+
+
     def get(self, command):
         """Utility command to get data from API"""
         return self.post(command, None)
     
     def post(self, command, data={}):
         """Utility command to post data to API"""
-        now = calendar.timegm(datetime.datetime.now().timetuple())
+        now = time.time()
         if now > self.expiration:
             auth = self.__open("/oauth/token", data=self.oauth)
             self.__sethead(auth['access_token'],
@@ -190,48 +214,105 @@ def convert_temp(temp):
     else:
         return temp
 
-def main():
-    # create connection to tesla account
-    c = Connection(USERNAME, PASSWORD)
+def prompt_login():
+    for attempt in range(3):
+        sys.stdout.write("\ntesla.com username (will not be saved): ")
+        username = sys.stdin.readline()
 
-    # see if args are passed, if so, pass commands and bail
-    if len(sys.argv) > 1:
-        v = c.vehicles[int(sys.argv[1])]
-        v.wake_up()
-        v.command(sys.argv[2])
+        sys.stdout.write("tesla.com password (will not be saved): ")
+        os.system("stty -echo")  # Don't echo typed characters to terminal
+        password = sys.stdin.readline()
+        os.system("stty echo")   # Echo characters to terminal, as normal
+
+        sys.stdout.write("\nChecking...")
+        sys.stdout.flush()
+
+        c = Connection(username, password)
+        access_token = c.get_token()
+
+        if not access_token:
+            print ("Access denied")
+            time.sleep(0.5)
+            continue
+
+        tesla_access_token=keyring.set_password('tesla-bitbar', 'access-token', access_token)
+        print ('Success!')
+        print ("\nType \"exit\" and hit enter to close this window")
+        return
+
+    print ("Sorry, double check your username and password then try again")
+    print ("\nType \"exit\" and hit enter to close this window")
+
+
+def abort_credentials():
+    print ('Click to login | refresh=true terminal=true bash="%s" param1=login' % (sys.argv[0]))
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "login":
+        prompt_login()
         return
 
     # print menu - below is icon.png encoded as base64
     print ('|image=iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA/xpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ1dWlkOjI3MzY3NDg0MTg2QkRGMTE5NjZBQjM5RDc2MkZFOTlGIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkI2QzU0RTM0OURFMDExRTdBNEU0QTExMzAxRjlCQkE1IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkI2QzU0RTMzOURFMDExRTdBNEU0QTExMzAxRjlCQkE1IiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIElsbHVzdHJhdG9yIENDIDIwMTUgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo2MWU4Yzc5OS1kOTYyLTRjYmUtYWI0Mi1jYWZiOWY5NjFjZWUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NjFlOGM3OTktZDk2Mi00Y2JlLWFiNDItY2FmYjlmOTYxY2VlIi8+IDxkYzp0aXRsZT4gPHJkZjpBbHQ+IDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+dGVzbGFfVF9CVzwvcmRmOmxpPiA8L3JkZjpBbHQ+IDwvZGM6dGl0bGU+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+ux4+7QAAALlJREFUeNpi/P//PwMtABMDjcDQM5gFmyAjI2MAkLIHYgMgdsCh9wAQXwDig8B42oAhC4o8ZAwE74H4PpQ+D6XXA7EAFK9HkwOrxTAHi8ENUA3/0fB6KEYXB6ltIMZgkKv6oS4xgIqhGAYVM4CqmQ/SQ9BgbBjqbZjB54nRQ2yqeICDTXFyu4iDTbHBB3CwKTaY5KBgJLYQAmaa/9B0z0h2ziMiOKhq8AVaGfxwULiYcbQGobnBAAEGADCCwy7PWQ+qAAAAAElFTkSuQmCC')
     print ('---')
 
+    tesla_access_token=keyring.get_password('tesla-bitbar', 'access-token')
+    if not tesla_access_token:
+        abort_credentials()
+        return
+
+    # create connection to tesla account
+    c = Connection(access_token = tesla_access_token)
+
+    try:
+        vehicles = c.vehicles()
+    except HTTPError as e:
+        if e.code == 401:
+            abort_credentials()
+            return
+        raise
+
+    # see if args are passed, if so, pass commands and bail
+    if len(sys.argv) > 1:
+        v = vehicles[int(sys.argv[1])]
+        v.wake_up()
+        if sys.argv[2] != "wakeup":
+            v.command(sys.argv[2])
+        return
+
     # only do submenu if multiple vehicles
     prefix = ''
-    if len(c.vehicles) > 1:
+    if len(vehicles) > 1:
         prefix = '--'
 
     # loop through vehicles, print menu with relevant info       
-    for i, vehicle in enumerate(c.vehicles):
+    for i, vehicle in enumerate(vehicles):
         if prefix:
             print get_name(vehicle['display_name'])
-        charge_state = vehicle.data_request('charge_state')
-        climate_state = vehicle.data_request('climate_state')
-        print ('%sBattery Level: %s%%| color=black' % (prefix, str(charge_state['battery_level'])))
-        print ('%sCharging State: %s| color=black' % (prefix, charge_state['charging_state']))
-        print ('%s---' % prefix)
-        try:
-            print ('%sInside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['inside_temp'])))
-        except:
-            print ('%sInside Temp: Unavailable' % prefix)
-        try:
-            print ('%sOutside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['outside_temp'])))
-        except:
-            print ('%sOutside Temp: Unavailable' % prefix)
 
-        if climate_state['is_climate_on']:
-            print ('%sStop HVAC | refresh=true terminal=false bash=%s param1=%s param2=auto_conditioning_stop' % (prefix, sys.argv[0], str(i)))
+        if vehicle['state'] != "online":
+            print ('%sState: %s| color=black' %  (prefix, vehicle['state']))
+            print ('%sWakeup | refresh=true terminal=false bash="%s" param1=%s param2=wakeup' % (prefix, sys.argv[0], str(i)))
+            print ('%sStart HVAC | refresh=true terminal=false bash="%s" param1=%s param2=auto_conditioning_start' % (prefix, sys.argv[0], str(i)))
         else:
-            print ('%sStart HVAC | refresh=true terminal=false bash=%s param1=%s param2=auto_conditioning_start' % (prefix, sys.argv[0], str(i)))
+            charge_state = vehicle.data_request('charge_state')
+            climate_state = vehicle.data_request('climate_state')
+            print ('%sBattery Level: %s%%| color=black' % (prefix, str(charge_state['battery_level'])))
+            print ('%sCharging State: %s| color=black' % (prefix, charge_state['charging_state']))
+            print ('%s---' % prefix)
+            try:
+                print ('%sInside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['inside_temp'])))
+            except:
+                print ('%sInside Temp: Unavailable' % prefix)
+            try:
+                print ('%sOutside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['outside_temp'])))
+            except:
+                print ('%sOutside Temp: Unavailable' % prefix)
+
+            if climate_state['is_climate_on']:
+                print ('%sStop HVAC | refresh=true terminal=false bash="%s" param1=%s param2=auto_conditioning_stop' % (prefix, sys.argv[0], str(i)))
+            else:
+                print ('%sStart HVAC | refresh=true terminal=false bash="%s" param1=%s param2=auto_conditioning_start' % (prefix, sys.argv[0], str(i)))
 
 
 if __name__ == '__main__':
