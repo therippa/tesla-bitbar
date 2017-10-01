@@ -290,7 +290,7 @@ def main():
         if prefix:
             print get_name(vehicle['display_name'])
 
-        if vehicle['state'] != "online":
+        if vehicle['state'] != "online" and vehicle['state'] != "driving":
             print ('%sState: %s| color=black' %  (prefix, vehicle['state']))
             print ('%sWakeup | refresh=true terminal=false bash="%s" param1=%s param2=wakeup' % (prefix, sys.argv[0], str(i)))
             print ('%sStart HVAC | refresh=true terminal=false bash="%s" param1=%s param2=auto_conditioning_start' % (prefix, sys.argv[0], str(i)))
