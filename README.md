@@ -13,7 +13,8 @@ Supports multiple vehicles
 2. Open a terminal and run `sudo pip install keyring`
 3. After installation, run `keyring set tesla-bitbar youremail@email.com` using your tesla.com account email, and enter your password.
 4. Copy [tesla.30m.py](tesla.30m.py) to your BitBar plugins folder.
-5. Start BitBar, or if already running, click the BitBar menu and choose Preferences -> Refresh all.
+5. Open tesla.30m.py in a text editor, and change the USERNAME variable to your tesla.com account email.
+6. Start BitBar, or if already running, click the BitBar menu and choose Preferences -> Refresh all.
 
 
 ### Note for multiple vehicles
