@@ -35,11 +35,6 @@ USE_EMOJI=True
 
 TEMP_UNIT='F' # 'F' or whatever else, it'll end up 'C'
 
-VEHICLES = { 
-    # map vehicle ID numbers to real names
-    #'012345': 'Example Vehicle Name',
-}
-
 # ----------------------------------
 # Thank you to Greg Glockner for the code below - https://github.com/gglockner/teslajson
 # ----------------------------------
@@ -203,13 +198,6 @@ class Vehicle(dict):
         """Utility command to post data to API"""
         return self.connection.post('vehicles/%i/%s' % (self['id'], command), data)
 
-def get_name(id):
-    # check name mapping array for humanized vehicle names
-    if id in VEHICLES:
-        return VEHICLES[id]
-    else:
-        return id
-
 def convert_temp(temp):
     if TEMP_UNIT == 'F':
         return (temp * 1.8) + 32
@@ -296,7 +284,7 @@ def main():
     # loop through vehicles, print menu with relevant info       
     for i, vehicle in enumerate(vehicles):
         if prefix:
-            print get_name(vehicle['display_name'])
+            print vehicle['display_name']
 
         if vehicle['state'] != "online" and vehicle['state'] != "driving":
             print ('%sState: %s| color=black' %  (prefix, vehicle['state']))
