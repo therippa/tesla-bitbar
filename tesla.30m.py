@@ -347,14 +347,16 @@ def main():
                 print ('%sStart HVAC | refresh=true terminal=false bash="%s" param1=%s param2=auto_conditioning_start' % (prefix, sys.argv[0], str(i)))
 
             if vehicle_state['locked']:
-                doors_locked = 'Yes'
-                door_action = ('%s:unlock: Unlock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_unlock' % (prefix, sys.argv[0], str(i)))
+                doors_locked = 'Locked'
+                door_emoji = ':lock:'
+                door_action = ('%sUnlock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_unlock' % (prefix, sys.argv[0], str(i)))
             else:
-                doors_locked = 'No'
-                door_action = ('%s:lock:Lock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_lock' % (prefix, sys.argv[0], str(i)))
+                doors_locked = 'Unlocked'
+                door_emoji = ':unlock:'
+                door_action = ('%sLock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_lock' % (prefix, sys.argv[0], str(i)))
 
             print ('%s---' % prefix)
-            print ('%sDoors Locked: %s| color=black' % (prefix, doors_locked))
+            print ('%s%sDoors %s| color=black' % (prefix, door_emoji, doors_locked))
             print (door_action)
 
             print ('%s---' % prefix)
