@@ -348,16 +348,16 @@ def main():
 
             if vehicle_state['locked']:
                 doors_locked = 'Yes'
-                door_action = ('%sUnlock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_unlock' % (prefix, sys.argv[0], str(i)))
+                door_action = ('%s:unlock: Unlock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_unlock' % (prefix, sys.argv[0], str(i)))
             else:
                 doors_locked = 'No'
-                door_action = ('%sLock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_lock' % (prefix, sys.argv[0], str(i)))
+                door_action = ('%s:lock:Lock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_lock' % (prefix, sys.argv[0], str(i)))
 
             print ('%s---' % prefix)
             print ('%sDoors Locked: %s| color=black' % (prefix, doors_locked))
             print (door_action)
 
             print ('%s---' % prefix)
-            print ('%sView Location | href="https://maps.google.com?q=%s,%s"' % (prefix, drive_state['latitude'], drive_state['longitude']))
+            print ('%s:earth_americas: View Location | href="https://maps.google.com?q=%s,%s"' % (prefix, drive_state['latitude'], drive_state['longitude']))
 if __name__ == '__main__':
     main()
