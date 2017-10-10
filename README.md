@@ -1,8 +1,8 @@
 # Tesla BitBar Plugin
 
-A simple plugin that lets you view the battery/charging status and control the HVAC from your OSX menubar.
+A simple plugin that lets you view the battery/charging status and control the HVAC and locks from your OSX menubar.
 
-![](https://i.imgur.com/yPlSfPu.png)
+![](https://i.imgur.com/CqX9TDh.png)
 
 Supports multiple vehicles
 
