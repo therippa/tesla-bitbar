@@ -293,6 +293,9 @@ def main():
         else:
             charge_state = vehicle.data_request('charge_state')
             climate_state = vehicle.data_request('climate_state')
+            vehicle_state = vehicle.data_request('vehicle_state')
+            drive_state = vehicle.data_request('drive_state')
+
             print ('%s%s %s%%| color=black' % (prefix, battery_str, str(charge_state['battery_level'])))
             
             # The default charge state text
@@ -323,6 +326,11 @@ def main():
                     pretty_charge_state = "Scheduled"
 
             print ('%s%s %s| color=black' % (prefix, charging_str, pretty_charge_state))
+
+            print ('%sSet Charge Limit' % prefix)
+            print ('%s--Standard | refresh=true terminal=false bash="%s" param1=%s param2=charge_standard' % (prefix, sys.argv[0], str(i)))
+            print ('%s--Max | refresh=true terminal=false bash="%s" param1=%s param2=charge_max_range' % (prefix, sys.argv[0], str(i)))
+
             print ('%s---' % prefix)
             try:
                 print ('%sInside Temp: %.1f°| color=black' % (prefix, convert_temp(climate_state['inside_temp'])))
@@ -338,6 +346,18 @@ def main():
             else:
                 print ('%sStart HVAC | refresh=true terminal=false bash="%s" param1=%s param2=auto_conditioning_start' % (prefix, sys.argv[0], str(i)))
 
+            if vehicle_state['locked']:
+                doors_locked = 'Yes'
+                door_action = ('%sUnlock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_unlock' % (prefix, sys.argv[0], str(i)))
+            else:
+                doors_locked = 'No'
+                door_action = ('%sLock Doors | refresh=true terminal=false bash="%s" param1=%s param2=door_lock' % (prefix, sys.argv[0], str(i)))
 
+            print ('%s---' % prefix)
+            print ('%sDoors Locked: %s| color=black' % (prefix, doors_locked))
+            print (door_action)
+
+            print ('%s---' % prefix)
+            print ('%sView Location | href="https://maps.google.com?q=%s,%s"' % (prefix, drive_state['latitude'], drive_state['longitude']))
 if __name__ == '__main__':
     main()
