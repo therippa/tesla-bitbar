@@ -32,7 +32,7 @@ import time
 from pprint import pprint
 
 USE_EMOJI=True
-TEMP_UNIT='F' # will override with vehicle setting, so don't bother setting it here
+TEMP_UNIT='F' # 'F' or 'C'
 
 # ----------------------------------
 # Thank you to Greg Glockner for the code below - https://github.com/gglockner/teslajson
@@ -311,8 +311,6 @@ def main():
             vehicle_state = vehicle.data_request('vehicle_state')
             drive_state = vehicle.data_request('drive_state')
             gui_settings = vehicle.data_request('gui_settings')
-
-            TEMP_UNIT = gui_settings['gui_temperature_units']
 
             print ('%s%s %s%%| color=%s' % (prefix, battery_str, str(charge_state['battery_level']), color))
 
