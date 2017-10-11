@@ -355,16 +355,16 @@ def main():
             outside_temp = '??'
 
             try:
-                inside_temp = convert_temp(climate_state['inside_temp'])
+                inside_temp = ('%.1f' % convert_temp(climate_state['inside_temp']))
             except:
                 pass
 
             try:
-                outside_temp = convert_temp(climate_state['outside_temp'])
+                outside_temp = ('%.1f' % convert_temp(climate_state['outside_temp']))
             except:
                 pass
 
-            print ('%s%s %.1f° inside / %.1f° outside|color=%s' % (prefix, temperature_str, inside_temp, outside_temp, color))
+            print ('%s%s %s° inside / %s° outside|color=%s' % (prefix, temperature_str, inside_temp, outside_temp, color))
 
             if climate_state['is_climate_on']:
                 print ('%s--Stop HVAC | refresh=true terminal=false bash="%s" param1=%s param2=auto_conditioning_stop color=%s' % (prefix, sys.argv[0], str(i), color))
