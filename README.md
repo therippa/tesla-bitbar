@@ -2,9 +2,9 @@
 
 A simple plugin that lets you view the battery/charging status and control the HVAC and locks from your OSX menubar.
 
-![](https://i.imgur.com/CqX9TDh.png)
+![](https://i.imgur.com/4LNLTVm.png)
 
-Supports multiple vehicles
+Supports multiple vehicles (please ignore the outdated menu options)
 
 ![](https://i.imgur.com/XfkzAra.png)
 
