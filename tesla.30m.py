@@ -321,8 +321,9 @@ def main():
                 # Calculate the wattage ourself for more signifiant digits
                 v = charge_state['charger_voltage']
                 a = charge_state['charger_actual_current']
-                if v and a:
-                    rate = float(v * a) / 1000.0
+                p = charge_state['charger_phases']
+                if v and a and p:
+                    rate = float(v * a * p) / 1000.0
                 else:
                     rate = 0
                 added = charge_state['charge_energy_added']
