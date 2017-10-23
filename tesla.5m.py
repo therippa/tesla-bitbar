@@ -33,7 +33,7 @@ from pprint import pprint
 
 USE_EMOJI=True
 
-TEMP_UNIT='C' # 'F' or whatever else, it'll end up 'C'
+TEMP_UNIT='F' # 'F' or whatever else, it'll end up 'C'
 
 VEHICLES = { 
     # map vehicle ID numbers to real names
