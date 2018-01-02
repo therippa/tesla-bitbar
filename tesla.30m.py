@@ -223,7 +223,7 @@ def prompt_login():
         sys.stdout.write("\nChecking...")
         sys.stdout.flush()
 
-        c = Connection(username, password)
+        c = Connection(username.rstrip(), password.rstrip())
         access_token = c.get_token()
 
         if not access_token:
