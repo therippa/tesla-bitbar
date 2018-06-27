@@ -159,7 +159,10 @@ class Connection(object):
         try:
             resp = opener.open(req)
         except:
-            print '--Error contacting Tesla\'s servers'
+            if check_token_age():
+                abort_credentials()
+            else:
+                print '--Error contacting Tesla\'s servers'
         else:
             charset = resp.info().get('charset', 'utf-8')
             return json.loads(resp.read().decode(charset))
@@ -232,6 +235,7 @@ def prompt_login():
             continue
 
         tesla_access_token=keyring.set_password('tesla-bitbar', 'access-token', access_token)
+        keyring.set_password('tesla-bitbar', 'access-token-date', datetime.datetime.now().strftime('%Y-%m-%d'))
         print ('Success!')
         print ("\nType \"exit\" and hit enter to close this window")
         return
@@ -239,6 +243,12 @@ def prompt_login():
     print ("Sorry, double check your username and password then try again")
     print ("\nType \"exit\" and hit enter to close this window")
 
+def check_token_age():
+    token_date = keyring.get_password('tesla-bitbar', 'access-token-date')
+    if datetime.datetime.strptime(token_date, '%Y-%m-%d') <= datetime.datetime.now() - datetime.timedelta(days=45):
+        return True
+    else:
+        return False
 
 def abort_credentials():
     print ('Click to login | refresh=true terminal=true bash="%s" param1=login' % (sys.argv[0]))
