@@ -253,6 +253,30 @@ def check_token_age():
 def abort_credentials():
     print ('Click to login | refresh=true terminal=true bash="%s" param1=login' % (sys.argv[0]))
 
+def humanReadableDelta(delta):
+
+    deltaMinutes      = delta.seconds // 60
+    deltaHours        = delta.seconds // 3600
+    deltaMinutes     -= deltaHours * 60
+    deltaWeeks        = delta.days    // 7
+    deltaDays         = delta.days    - deltaWeeks * 7
+
+    valuesAndNames =[ (deltaWeeks  ,"week"  ), (deltaDays   ,"day"   ),
+                      (deltaHours  ,"hour"  ), (deltaMinutes,"minute") ]
+
+    text = ""
+    for value, name in valuesAndNames:
+        if value > 0:
+            text += len(text)   and ", " or ""
+            text += "%d %s" % (value, name)
+            text += (value > 1) and "s" or ""
+
+    # replacing last occurrence of a comma by an 'and'
+    if text.find(",") > 0:
+        text = " and ".join(text.rsplit(", ",1))
+
+    return text
+
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "login":
         prompt_login()
@@ -340,10 +364,7 @@ def main():
                 pretty_charge_state = "+%0.2f kWh @ %0.2f kW" % (added, rate)
                 try:
                     ttf = float(charge_state['time_to_full_charge'])
-                    if ttf > 1.4:
-                        pretty_charge_state += ", %0.1f hours remaining" % (ttf)
-                    else:
-                        pretty_charge_state += ", %d min remaining" % (ttf * 60.0)
+                    pretty_charge_state += ", %s" % humanReadableDelta(datetime.timedelta(hours=ttf))
                 except Exception:
                     pass
             elif charge_state['charge_port_latch'] != "Engaged":
