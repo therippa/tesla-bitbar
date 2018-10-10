@@ -271,7 +271,6 @@ def humanReadableDelta(delta):
             text += "%d %s" % (value, name)
             text += (value > 1) and "s" or ""
 
-    # replacing last occurrence of a comma by an 'and'
     if text.find(",") > 0:
         text = " and ".join(text.rsplit(", ",1))
 
