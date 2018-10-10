@@ -363,7 +363,7 @@ def main():
                 pretty_charge_state = "+%0.2f kWh @ %0.2f kW" % (added, rate)
                 try:
                     ttf = float(charge_state['time_to_full_charge'])
-                    pretty_charge_state += ", %s" % humanReadableDelta(datetime.timedelta(hours=ttf))
+                    pretty_charge_state += ", %s remaining" % humanReadableDelta(datetime.timedelta(hours=ttf))
                 except Exception:
                     pass
             elif charge_state['charge_port_latch'] != "Engaged":
