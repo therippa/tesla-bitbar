@@ -245,7 +245,9 @@ def prompt_login():
 
 def check_token_age():
     token_date = keyring.get_password('tesla-bitbar', 'access-token-date')
-    if datetime.datetime.strptime(token_date, '%Y-%m-%d') <= datetime.datetime.now() - datetime.timedelta(days=45):
+    if token_date == None:
+        return False
+    elif datetime.datetime.strptime(token_date, '%Y-%m-%d') <= datetime.datetime.now() - datetime.timedelta(days=45):
         return True
     else:
         return False
