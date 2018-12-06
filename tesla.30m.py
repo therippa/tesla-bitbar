@@ -309,6 +309,10 @@ def main():
             abort_credentials()
             return
         raise
+    except TypeError as e:
+        abort_credentials()
+        return
+        raise
 
     # see if args are passed, if so, pass commands and bail
     if len(sys.argv) > 1:
